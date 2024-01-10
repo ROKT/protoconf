@@ -19,6 +19,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	protoconfservice "github.com/protoconf/protoconf/agent/api/proto/v1"
 	protoconf_agent_config "github.com/protoconf/protoconf/agent/config/v1"
+	"github.com/protoconf/protoconf/agent/configmaps"
 	"github.com/protoconf/protoconf/agent/filekv"
 	"github.com/protoconf/protoconf/consts"
 	"github.com/stephenafamo/orchestra"
@@ -74,6 +75,8 @@ func RunAgent(ctx context.Context, config *protoconf_agent_config.AgentConfig) e
 			store, err = zookeeper.New(ctx, defaultServers(config), &zookeeper.Config{})
 		} else if config.Store == protoconf_agent_config.AgentConfig_etcd {
 			store, err = etcdv3.New(ctx, defaultServers(config), &etcdv3.Config{})
+		} else if config.Store == protoconf_agent_config.AgentConfig_configmaps {
+			store, err = configmaps.New(ctx, defaultServers(config), &configmaps.Config{Namespace: config.Namespace})
 		} else {
 			err = fmt.Errorf("unknown key-value store %s", config.Store)
 		}
