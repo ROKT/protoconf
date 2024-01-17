@@ -48,6 +48,13 @@ func (s *ProtoconfKVAgent) SubscribeForConfig(request *protoconfservice.ConfigSu
 		select {
 		case kvPair := <-kvPairCh:
 			result := &protoconfvalue.ProtoconfValue{}
+			if kvPair == nil {
+				srv.Send(&protoconfservice.ConfigUpdate{
+					Error: "kvPair is nil",
+				})
+				logger.Error("kvPair is nil")
+				continue
+			}
 			data, err := base64.StdEncoding.DecodeString(string(kvPair.Value))
 			if err != nil {
 				srv.Send(&protoconfservice.ConfigUpdate{

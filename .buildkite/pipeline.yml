@@ -1,0 +1,9 @@
+steps:
+  - name: ":golang:"
+    command: "./scripts/test.sh"
+    plugins:
+      - docker-compose#v3.0.3:
+          run: buildkite
+          compose_file: docker-compose.yml
+    agents:
+      queue: "eng-default"

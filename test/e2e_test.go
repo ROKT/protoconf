@@ -26,6 +26,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 func Test(t *testing.T) {
@@ -110,8 +111,11 @@ func Test(t *testing.T) {
 			t.Errorf("expected \n%s, got \n%s", expected, prodConfigValue.Value)
 		}
 	})
+
 	// Change config via mutation rpc
-	mutationValue := &anypb.Any{TypeUrl: "type.googleapis.com/TestMessage", Value: []byte("\n\x05world")}
+	mutationValue, err := anypb.New(structpb.NewStringValue("protoconf"))
+	require.NoError(t, err)
+
 	t.Run("change config via mutation rpc", func(t *testing.T) {
 		_, err = devMutationClient.MutateConfig(ctx, &protoconfmutation.ConfigMutationRequest{
 			Path: "mutation_test", Value: &v1.ProtoconfValue{
