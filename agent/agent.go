@@ -69,15 +69,16 @@ func RunAgent(ctx context.Context, config *protoconf_agent_config.AgentConfig) e
 		config.Store = protoconf_agent_config.AgentConfig_file
 	} else {
 		logger.Info("Connecting to store", slog.Any("type", config.Store), slog.Any("servers", defaultServers(config)), slog.String("prefix", config.Prefix))
-		if config.Store == protoconf_agent_config.AgentConfig_consul {
+		switch config.Store {
+		case protoconf_agent_config.AgentConfig_consul:
 			store, err = consul.New(ctx, defaultServers(config), &consul.Config{})
-		} else if config.Store == protoconf_agent_config.AgentConfig_zookeeper {
+		case protoconf_agent_config.AgentConfig_zookeeper:
 			store, err = zookeeper.New(ctx, defaultServers(config), &zookeeper.Config{})
-		} else if config.Store == protoconf_agent_config.AgentConfig_etcd {
+		case protoconf_agent_config.AgentConfig_etcd:
 			store, err = etcdv3.New(ctx, defaultServers(config), &etcdv3.Config{})
-		} else if config.Store == protoconf_agent_config.AgentConfig_configmaps {
+    case protoconf_agent_config.AgentConfig_configmaps:
 			store, err = configmaps.New(ctx, defaultServers(config), &configmaps.Config{Namespace: config.Namespace})
-		} else {
+		default:
 			err = fmt.Errorf("unknown key-value store %s", config.Store)
 		}
 	}
